@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TCS Custodial Care & Rapid Dispatch</title>
+  <style>
+    * { box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+    body { background: #f1f5f9; margin: 0; padding: 16px; color: #1e293b; }
+    .card { max-width: 500px; margin: 0 auto; background: #ffffff; border-radius: 14px; padding: 24px; box-shadow: 0 4px 16px rgba(0,0,0,0.08); border-top: 6px solid #1e3a8a; }
+    h1 { font-size: 1.35rem; margin: 0 0 6px; color: #1e3a8a; }
+    p.subtitle { font-size: 0.92rem; color: #475569; margin: 0 0 20px; line-height: 1.4; }
+    label { display: block; font-weight: 600; font-size: 0.9rem; margin-bottom: 6px; color: #0f172a; }
+    input[type="text"], select, textarea { width: 100%; padding: 12px; border: 1.5px solid #cbd5e1; border-radius: 8px; font-size: 1rem; margin-bottom: 16px; background: #f8fafc; }
+    input:focus, select:focus, textarea:focus { outline: none; border-color: #2563eb; background: #fff; }
+    .priority-group { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 18px; }
+    .priority-btn { border: 2px solid #cbd5e1; border-radius: 10px; padding: 12px 10px; text-align: center; cursor: pointer; font-weight: 600; font-size: 0.88rem; background: #f8fafc; transition: all 0.15s; }
+    .priority-btn.active-standard { border-color: #2563eb; background: #eff6ff; color: #1d4ed8; }
+    .priority-btn.active-urgent { border-color: #dc2626; background: #fef2f2; color: #b91c1c; }
+    button.submit-btn { width: 100%; background: #1e3a8a; color: #fff; border: none; padding: 14px; font-size: 1.05rem; font-weight: 700; border-radius: 10px; cursor: pointer; }
+    button.submit-btn:disabled { background: #94a3b8; cursor: not-allowed; }
+    .success-box { display: none; text-align: center; padding: 24px 12px; }
+    .success-box h2 { color: #15803d; margin-bottom: 8px; }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <div id="formContainer">
+      <h1>Trinity Christian School</h1>
+      <p class="subtitle"><strong>Direct Custodial Dispatch:</strong> Report a missed cleaning item from last night or request an immediate daytime cleanup. Alerts go straight to the Facilities Director.</p>
+
+      <label>1. Urgency Level</label>
+      <div class="priority-group">
+        <div class="priority-btn active-standard" id="btnStandard" onclick="setPriority('Missed Cleaning / Routine')">📋 Missed Cleaning<br><span style="font-weight:400;font-size:0.78rem;">From evening shift</span></div>
+        <div class="priority-btn" id="btnUrgent" onclick="setPriority('URGENT / Immediate Cleanup')">🚨 Urgent Cleanup<br><span style="font-weight:400;font-size:0.78rem;">Spill or immediate need</span></div>
+      </div>
+
+      <label for="room">2. Room Number or Area *</label>
+      <input type="text" id="room" placeholder="e.g., Room 104, 2nd Grade Hall, Girls Restroom" required>
+
+      <label for="issueType">3. What Needs Attention? *</label>
+      <select id="issueType">
+        <option value="Missed Trash / Recycling">Missed Trash or Recycling</option>
+        <option value="Missed Vacuuming / Sweeping / Mopping">Missed Vacuuming, Sweeping, or Mopping</option>
+        <option value="Desks / Surfaces / Whiteboards Not Wiped">Desks, Surfaces, or Sink Not Wiped</option>
+        <option value="Restroom Cleaning / Paper or Soap Restock">Restroom Issue / Paper or Soap Restock</option>
+        <option value="Emergency Spill / Biohazard Cleanup">Emergency Spill or Immediate Cleanup</option>
+        <option value="Other Facility Issue">Other Custodial Item</option>
+      </select>
+
+      <label for="details">4. Quick Details *</label>
+      <textarea id="details" rows="3" placeholder="Briefly tell us what was missed or what needs cleanup..." required></textarea>
+
+      <label for="submittedBy">5. Your Name (Optional)</label>
+      <input type="text" id="submittedBy" placeholder="Teacher or Staff Name">
+
+      <button class="submit-btn" id="submitBtn" onclick="submitReport()">Send Direct Alert to Facilities</button>
+    </div>
+
+    <div class="success-box" id="successBox">
+      <div style="font-size: 3rem;">✅</div>
+      <h2>Alert Sent to Facilities!</h2>
+      <p style="color:#475569; line-height:1.5;">Sixto Navarrete has been notified directly and your request has been logged for prompt follow-up.</p>
+      <button class="submit-btn" style="margin-top:16px; background:#334155;" onclick="location.reload()">Submit Another Request</button>
+    </div>
+  </div>
+
+  <script>
+    const SCRIPT_URL = "YOUR_APPS_SCRIPT_WEB_APP_URL_HERE";
+    let selectedPriority = "Missed Cleaning / Routine";
+
+    function setPriority(val) {
+      selectedPriority = val;
+      document.getElementById("btnStandard").className = val.includes("Missed") ? "priority-btn active-standard" : "priority-btn";
+      document.getElementById("btnUrgent").className = val.includes("URGENT") ? "priority-btn active-urgent" : "priority-btn";
+    }
+
+    function submitReport() {
+      const room = document.getElementById("room").value.trim();
+      const details = document.getElementById("details").value.trim();
+      if (!room || !details) {
+        alert("Please enter the Room Number/Area and a brief description.");
+        return;
+      }
+
+      const btn = document.getElementById("submitBtn");
+      btn.disabled = true;
+      btn.innerText = "Sending Alert...";
+
+      const payload = {
+        priority: selectedPriority,
+        room: room,
+        issueType: document.getElementById("issueType").value,
+        details: details,
+        submittedBy: document.getElementById("submittedBy").value.trim() || "Anonymous"
+      };
+
+      fetch(SCRIPT_URL, {
+        method: "POST",
+        mode: "no-cors",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload)
+      })
+      .then(() => {
+        document.getElementById("formContainer").style.display = "none";
+        document.getElementById("successBox").style.display = "block";
+      })
+      .catch(err => {
+        alert("Network error—please try again.");
+        btn.disabled = false;
+        btn.innerText = "Send Direct Alert to Facilities";
+      });
+    }
+  </script>
+</body>
+</html>
