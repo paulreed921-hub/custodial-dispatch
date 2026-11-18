@@ -66,7 +66,7 @@
   </div>
 
   <script>
-    const SCRIPT_URL = " https://script.google.com/macros/s/.../exec";
+    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbx4iAds-kPH3d4RQ3vfyB_Z8bF0bJnYkVTWBVsZ7oWGmrF-gZkXX9BEU0fDKgRdyOfS/exec ";
     let selectedPriority = "Missed Cleaning / Routine";
 
     function setPriority(val) {
@@ -87,19 +87,17 @@
       btn.disabled = true;
       btn.innerText = "Sending Alert...";
 
-      const payload = {
-        priority: selectedPriority,
-        room: room,
-        issueType: document.getElementById("issueType").value,
-        details: details,
-        submittedBy: document.getElementById("submittedBy").value.trim() || "Anonymous"
-      };
+      const formData = new URLSearchParams();
+      formData.append("priority", selectedPriority);
+      formData.append("room", room);
+      formData.append("issueType", document.getElementById("issueType").value);
+      formData.append("details", details);
+      formData.append("submittedBy", document.getElementById("submittedBy").value.trim() || "Anonymous");
 
       fetch(SCRIPT_URL, {
         method: "POST",
         mode: "no-cors",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload)
+        body: formData
       })
       .then(() => {
         document.getElementById("formContainer").style.display = "none";
@@ -113,4 +111,4 @@
     }
   </script>
 </body>
-</html>
+</html> 
